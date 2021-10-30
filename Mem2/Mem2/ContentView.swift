@@ -7,16 +7,22 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    @State var emojies = ["🚕","🚌","🚓","🚑","🚒","🚜","🚚","🚛","🚠","🚋","🚄","✈️","🛳","🚁","🚂"]
-    @State var emojiSize = 4
+var cars = ["🚕","🚌","🚓","🚑","🚒","🚜","🚚","🚛","🚠","🚋","🚄","✈️","🛳","🚁","🚂"]
+var faces = ["😃","😂","😍","🙃","😇","😎","🤓","🤩",
+                    "🤬","🥶","🤢","🤠","😷","🤕","😱","😜",
+                    "🥵","🤡","💩","🥳"]
+var foods = ["🍏","🍎","🍊","🍋","🍌","🥑","🥝","🍇","🍐","🍓","🍒","🍉"]
 
+struct ContentView: View {
+    @State var emojies = foods.shuffled()
+    
     var body: some View {
         VStack {
+            Text("Memorize!")
             ScrollView{
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 65, maximum: 100))])
                 {
-                    ForEach(emojies[0..<emojiSize], id: \.self, content: {emoji in
+                    ForEach(emojies, id: \.self, content: {emoji in
                         CardView(content: emoji)
                             .aspectRatio(2/3, contentMode: .fit)
                     })
@@ -24,34 +30,50 @@ struct ContentView: View {
             }
             Spacer()
             HStack{
-                buttonRemove
                 Spacer()
-                buttonAdd
+                carsButton
+                Spacer()
+                facesButton
+                Spacer()
+                foodButton
+                Spacer()
             }
             .font(.largeTitle)
             .padding(.vertical)
             .foregroundColor(.blue)
         }
-        .padding(.horizontal)
         .foregroundColor(.red)
+        .font(.largeTitle)
     }
     
-    var buttonRemove: some View {
+    var carsButton: some View {
         Button(action: {
-            if emojiSize > 1 {
-                emojiSize -= 1
-            }
+            emojies = cars.shuffled()
         }, label: {
-            Image(systemName: "minus.circle")
+            VStack{
+                Image(systemName: "car")
+                Text("cars").font(.body)
+            }
         })
     }
-    var buttonAdd: some View {
+    var facesButton: some View {
         Button(action: {
-            if emojiSize < emojies.count {
-                emojiSize += 1
-            }
+            emojies = faces.shuffled()
         }, label: {
-            Image(systemName: "plus.circle")
+            VStack{
+                Image(systemName: "face.smiling")
+                Text("faces").font(.body)
+            }
+        })
+    }
+    var foodButton: some View {
+        Button(action: {
+            emojies = foods.shuffled()
+        }, label: {
+            VStack {
+                Image(systemName: "leaf")
+                Text("food").font(.body)
+            }
         })
     }
 }
