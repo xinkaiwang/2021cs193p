@@ -8,25 +8,25 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var emojies = ["🚕","🚌","🚓","🚑","🚒","🚜","🚚","🚛","🚠","🚋","🚄","✈️","🛳","🚁","🚂"]
-    @State var emojiSize = 4
-
+    @ObservedObject var viewModel: EmojiMemoryGame
+    
     var body: some View {
         VStack {
             ScrollView{
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 65, maximum: 100))])
                 {
-                    ForEach(emojies[0..<emojiSize], id: \.self, content: {emoji in
-                        CardView(content: emoji)
+                    ForEach(viewModel.cards) { cardModel in
+                        CardView(model: cardModel)
                             .aspectRatio(2/3, contentMode: .fit)
-                    })
+                            .onTapGesture {
+                                viewModel.choose(cardModel)
+                            }
+                    }
                 }
             }
             Spacer()
             HStack{
-                buttonRemove
                 Spacer()
-                buttonAdd
             }
             .font(.largeTitle)
             .padding(.vertical)
@@ -35,57 +35,38 @@ struct ContentView: View {
         .padding(.horizontal)
         .foregroundColor(.red)
     }
-    
-    var buttonRemove: some View {
-        Button(action: {
-            if emojiSize > 1 {
-                emojiSize -= 1
-            }
-        }, label: {
-            Image(systemName: "minus.circle")
-        })
-    }
-    var buttonAdd: some View {
-        Button(action: {
-            if emojiSize < emojies.count {
-                emojiSize += 1
-            }
-        }, label: {
-            Image(systemName: "plus.circle")
-        })
-    }
 }
 
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView().preferredColorScheme(.dark)
-        ContentView().preferredColorScheme(.light)
+        let game = EmojiMemoryGame()
+        ContentView(viewModel: game).preferredColorScheme(.dark)
+        ContentView(viewModel: game).preferredColorScheme(.light)
     }
 }
 
 struct CardView: View {
-    var content: String
-    @State var isFaceUp: Bool = true
+    let model: MemoryGame<String>.Card
+    
     var body: some View {
         ZStack {
             let shape = RoundedRectangle(cornerRadius: 20)
-            if isFaceUp {
+            if model.isFaceUp {
                 shape
                     .fill()
                     .foregroundColor(.white)
                 shape
                     .strokeBorder(lineWidth: 3)
-                Text(content)
+                Text(model.content)
                     .font(.largeTitle)
+            } else if model.isMatched {
+                shape.opacity(0)
             } else {
                 shape
                     .fill()
                     .foregroundColor(.red)
             }
-        }
-        .onTapGesture {
-            isFaceUp.toggle()
         }
     }
 }
